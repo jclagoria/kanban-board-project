@@ -1,0 +1,18 @@
+spring:
+  r2dbc:
+    pool:
+      max-size: 40
+      initial-size: 10
+
+logging:
+  level:
+    com.kanban: WARN
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      slack-api:           { base-config: default, wait-duration-in-open-state: 60s }
+      github-api:          { base-config: default, wait-duration-in-open-state: 60s }
+      jira-api:            { base-config: default, wait-duration-in-open-state: 120s }
+      google-drive-api:    { base-config: default, wait-duration-in-open-state: 60s }
+      google-calendar-api: { base-config: default, wait-duration-in-open-state: 60s }

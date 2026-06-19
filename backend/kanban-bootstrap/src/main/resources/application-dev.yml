@@ -1,0 +1,11 @@
+logging:
+  level:
+    com.kanban: DEBUG
+    io.r2dbc.postgresql.QUERY: DEBUG
+    io.r2dbc.postgresql.PARAM: DEBUG
+
+kanban:
+  limits:
+    free:
+      boards-per-user: 1000
+      cards-per-board: 10000

@@ -1,0 +1,12 @@
+.idea/
+
+/backend/kanban-application/target/
+/backend/kanban-bootstrap/target/
+/backend/kanban-core/target/
+/backend/kanban-infrastructure/target/
+/backend/kanban-interfaces/target/
+/backend/skills-lock.json
+
+/backend/.agents/
+/backend/spect/
+/backend/kanban-bootstrap/.env

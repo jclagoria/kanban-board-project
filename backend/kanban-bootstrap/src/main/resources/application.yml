@@ -1,0 +1,137 @@
+dotenv:
+  location: ${DOTENV_PATH:.env}
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+    mime-types: text/html,text/plain,text/css,application/json,application/javascript
+    min-response-size: 1024
+
+spring:
+  application:
+    name: kanban-multivista
+
+  r2dbc:
+    url: ${DB_R2DBC_URL_DEV:r2dbc:postgresql://localhost:5432/kanban}
+    username: ${DB_USER:kanban}
+    password: ${DB_PASSWORD:kanban}
+    pool:
+      max-size: 20
+      initial-size: 5
+      max-idle-time: 30s
+      max-life-time: 180s
+      max-acquire-time: 10s
+      validation-query: SELECT 1
+
+  flyway:
+    enabled: true
+    url: ${DB_HOST_FLYWAY:jdbc:postgresql://localhost:5432/kanban}
+    user: ${DB_USER:kanban}
+    password: ${DB_PASSWORD:kanban}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+      timeout: 2s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+
+logging:
+  level:
+    com.kanban: DEBUG
+    org.springframework.r2dbc: INFO
+    io.r2dbc.postgresql.QUERY: DEBUG
+    io.r2dbc.postgresql.PARAM: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        record-exceptions:
+          - com.kanban.core.shared.error.IntegrationTransientException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+        ignore-exceptions:
+          - com.kanban.core.shared.error.IntegrationNonCriticalException
+    instances:
+      slack-api:           { base-config: default }
+      github-api:          { base-config: default }
+      jira-api:            { base-config: default, wait-duration-in-open-state: 60s }
+      google-drive-api:    { base-config: default }
+      google-calendar-api: { base-config: default }
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - com.kanban.core.shared.error.IntegrationTransientException
+          - java.io.IOException
+        ignore-exceptions:
+          - com.kanban.core.shared.error.IntegrationNonCriticalException
+    instances:
+      slack-api:           { base-config: default, max-attempts: 3 }
+      github-api:          { base-config: default, max-attempts: 5 }
+      jira-api:            { base-config: default, max-attempts: 2 }
+      google-drive-api:    { base-config: default }
+      google-calendar-api: { base-config: default }
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+        cancel-running-future: true
+    instances:
+      slack-api:           { timeout-duration: 3s }
+      github-api:          { timeout-duration: 10s }
+      jira-api:            { timeout-duration: 8s }
+      google-drive-api:    { timeout-duration: 10s }
+      google-calendar-api: { timeout-duration: 5s }
+
+jwt:
+  access-token:
+    secret: ${JWT_ACCESS_SECRET:change-me-in-prod-this-is-a-256-bit-secret-key}
+    expiration: 15m
+  refresh-token:
+    secret: ${JWT_REFRESH_SECRET:change-me-in-prod-this-is-another-256-bit-secret-key}
+    expiration: 7d
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    oauth:
+      client-id: swagger-ui
+      use-pkce-with-authorization-code-grant: true
+
+kanban:
+  limits:
+    free:
+      boards-per-user: 10
+      members-per-board: 10
+      cards-per-board: 500
+      storage-mb-per-board: 100
+      activity-log-days: 30
+    pro:
+      boards-per-user: 1000
+      members-per-board: 50
+      cards-per-board: 10000
+      storage-mb-per-board: 10000
+      activity-log-days: 90
