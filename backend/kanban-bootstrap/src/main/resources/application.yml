@@ -105,11 +105,12 @@ resilience4j:
       google-calendar-api: { timeout-duration: 5s }
 
 jwt:
+  key-id: kanban-key-2026-v1
+  private-key-base64: ${JWT_PRIVATE_KEY}
+  public-key-base64: ${JWT_PUBLIC_KEY}
   access-token:
-    secret: ${JWT_ACCESS_SECRET:change-me-in-prod-this-is-a-256-bit-secret-key}
     expiration: 15m
   refresh-token:
-    secret: ${JWT_REFRESH_SECRET:change-me-in-prod-this-is-another-256-bit-secret-key}
     expiration: 7d
 
 springdoc:
@@ -122,6 +123,18 @@ springdoc:
       use-pkce-with-authorization-code-grant: true
 
 kanban:
+  auth:
+    login:
+      max-attempts: 3
+      lockout-duration: 15m
+    password:
+      min-length: 10
+    rate-limiting:
+      login-max-per-min: 10
+      register-max-per-hour: 5
+      forgot-password-max-per-hour: 3
+      refresh-max-per-min: 30
+      global-max-per-min: 1000
   limits:
     free:
       boards-per-user: 10

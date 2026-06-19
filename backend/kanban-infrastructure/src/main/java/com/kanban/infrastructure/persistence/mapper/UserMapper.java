@@ -1,6 +1,7 @@
 package com.kanban.infrastructure.persistence.mapper;
 
 import com.kanban.core.domain.model.User;
+import com.kanban.core.domain.vo.Email;
 import com.kanban.core.domain.vo.UserId;
 import com.kanban.infrastructure.persistence.entity.UserEntity;
 import org.jspecify.annotations.NullMarked;
@@ -13,7 +14,7 @@ public class UserMapper {
     public UserEntity toInsertEntity(User domain) {
         return new UserEntity(
             null,
-            domain.email(),
+            domain.email().value(),
             domain.passwordHash(),
             domain.displayName(),
             domain.avatarUrl(),
@@ -21,6 +22,9 @@ public class UserMapper {
             domain.twoFactorSecret(),
             domain.plan(),
             domain.storageUsedBytes(),
+            domain.emailVerified(),
+            domain.emailVerifiedAt(),
+            domain.issuedBefore(),
             domain.createdAt(),
             domain.updatedAt()
         );
@@ -29,7 +33,7 @@ public class UserMapper {
     public UserEntity toUpdateEntity(User domain) {
         return new UserEntity(
             domain.id().value(),
-            domain.email(),
+            domain.email().value(),
             domain.passwordHash(),
             domain.displayName(),
             domain.avatarUrl(),
@@ -37,6 +41,9 @@ public class UserMapper {
             domain.twoFactorSecret(),
             domain.plan(),
             domain.storageUsedBytes(),
+            domain.emailVerified(),
+            domain.emailVerifiedAt(),
+            domain.issuedBefore(),
             domain.createdAt(),
             domain.updatedAt()
         );
@@ -45,7 +52,7 @@ public class UserMapper {
     public User toDomain(UserEntity entity) {
         return User.reconstitute(
             new UserId(entity.id()),
-            entity.email(),
+            new Email(entity.email()),
             entity.passwordHash(),
             entity.displayName(),
             entity.avatarUrl(),
@@ -53,6 +60,9 @@ public class UserMapper {
             entity.twoFactorSecret(),
             entity.plan(),
             entity.storageUsedBytes(),
+            entity.emailVerified(),
+            entity.emailVerifiedAt(),
+            entity.issuedBefore(),
             entity.createdAt(),
             entity.updatedAt()
         );
