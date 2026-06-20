@@ -1,6 +1,7 @@
 package com.kanban.infrastructure.persistence.r2dbc;
 
 import com.kanban.core.domain.model.User;
+import com.kanban.core.domain.vo.Email;
 import com.kanban.core.domain.vo.UserId;
 import com.kanban.core.port.output.UserRepository;
 import com.kanban.infrastructure.persistence.entity.UserEntity;
@@ -33,9 +34,9 @@ public class R2dbcUserRepository implements UserRepository {
     }
 
     @Override
-    public Mono<User> findByEmail(String email) {
+    public Mono<User> findByEmail(Email email) {
         return template.select(UserEntity.class)
-                .matching(Query.query(where("email").is(email)))
+                .matching(Query.query(where("email").is(email.value())))
                 .one()
                 .map(mapper::toDomain);
     }
@@ -51,5 +52,24 @@ public class R2dbcUserRepository implements UserRepository {
     public Mono<User> update(User user) {
         return template.update(mapper.toUpdateEntity(user))
                 .thenReturn(user);
+    }
+
+    @Override
+    public Mono<User> updatePassword(User user) {
+        return template.update(mapper.toUpdateEntity(user))
+                .thenReturn(user);
+    }
+
+    @Override
+    public Mono<User> verifyEmail(User user) {
+        return template.update(mapper.toUpdateEntity(user))
+                .thenReturn(user);
+    }
+
+    @Override
+    public Mono<Boolean> existsByEmail(Email email) {
+        return template.select(UserEntity.class)
+                .matching(Query.query(where("email").is(email.value())))
+                .exists();
     }
 }

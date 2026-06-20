@@ -1,5 +1,5 @@
 dotenv:
-  location: ${DOTENV_PATH:.env}
+  location: ${DOTENV_PATH:kanban-bootstrap/.env}
 
 server:
   port: ${PORT:8080}
@@ -12,10 +12,14 @@ spring:
   application:
     name: kanban-multivista
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+
   r2dbc:
     url: ${DB_R2DBC_URL_DEV:r2dbc:postgresql://localhost:5432/kanban}
-    username: ${DB_USER:kanban}
-    password: ${DB_PASSWORD:kanban}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     pool:
       max-size: 20
       initial-size: 5
@@ -27,16 +31,22 @@ spring:
   flyway:
     enabled: true
     url: ${DB_HOST_FLYWAY:jdbc:postgresql://localhost:5432/kanban}
-    user: ${DB_USER:kanban}
-    password: ${DB_PASSWORD:kanban}
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
 
   data:
     redis:
-      url: ${REDIS_URL:redis://localhost:6379}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USER:}
+      password: ${REDIS_PASSWORD:}
       timeout: 2s
+      database: 0
+      ssl:
+        enabled: ${REDIS_SSL:false}
       lettuce:
         pool:
           max-active: 16
@@ -46,9 +56,11 @@ spring:
 logging:
   level:
     com.kanban: DEBUG
-    org.springframework.r2dbc: INFO
+    org.springframework.r2dbc: DEBUG
     io.r2dbc.postgresql.QUERY: DEBUG
     io.r2dbc.postgresql.PARAM: DEBUG
+    io.r2dbc.postgresql.client: DEBUG
+    org.flywaydb.core.FlywayExecutor: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"
 
@@ -105,11 +117,12 @@ resilience4j:
       google-calendar-api: { timeout-duration: 5s }
 
 jwt:
+  key-id: kanban-key-2026-v1
+  private-key-base64: ${JWT_PRIVATE_KEY}
+  public-key-base64: ${JWT_PUBLIC_KEY}
   access-token:
-    secret: ${JWT_ACCESS_SECRET:change-me-in-prod-this-is-a-256-bit-secret-key}
     expiration: 15m
   refresh-token:
-    secret: ${JWT_REFRESH_SECRET:change-me-in-prod-this-is-another-256-bit-secret-key}
     expiration: 7d
 
 springdoc:
@@ -117,11 +130,24 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    url: /api-docs
     oauth:
       client-id: swagger-ui
       use-pkce-with-authorization-code-grant: true
 
 kanban:
+  auth:
+    login:
+      max-attempts: 3
+      lockout-duration: 15m
+    password:
+      min-length: 10
+    rate-limiting:
+      login-max-per-min: 10
+      register-max-per-hour: 5
+      forgot-password-max-per-hour: 3
+      refresh-max-per-min: 30
+      global-max-per-min: 1000
   limits:
     free:
       boards-per-user: 10

@@ -22,6 +22,9 @@ public record UserEntity(
         @Column("two_factor_secret") @Nullable String twoFactorSecret,
         @Column("plan") String plan,
         @Column("storage_used_bytes") long storageUsedBytes,
+        @Column("email_verified") boolean emailVerified,
+        @Column("email_verified_at") @Nullable Instant emailVerifiedAt,
+        @Column("issued_before") Instant issuedBefore,
         @Column("created_at") Instant createdAt,
         @Column("updated_at") Instant updatedAt
 ) {
@@ -30,6 +33,7 @@ public record UserEntity(
         Objects.requireNonNull(passwordHash, "passwordHash must not be null");
         Objects.requireNonNull(displayName, "displayName must not be null");
         Objects.requireNonNull(plan, "plan must not be null");
+        Objects.requireNonNull(issuedBefore, "issuedBefore must not be null");
         Objects.requireNonNull(createdAt, "createdAt must not be null");
         Objects.requireNonNull(updatedAt, "updatedAt must not be null");
     }

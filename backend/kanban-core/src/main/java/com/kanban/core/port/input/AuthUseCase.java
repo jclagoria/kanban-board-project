@@ -1,25 +1,22 @@
 package com.kanban.core.port.input;
 
+import com.kanban.core.domain.model.User;
+import com.kanban.core.domain.vo.Email;
+import com.kanban.core.domain.vo.UserId;
 import org.jspecify.annotations.NullMarked;
 import reactor.core.publisher.Mono;
 
 @NullMarked
 public interface AuthUseCase {
-    Mono<AuthResult> login(String email, String password);
-    Mono<AuthResult> register(String email, String password, String displayName);
-    Mono<AuthResult> refreshToken(String refreshToken);
-    Mono<Void> logout(String accessToken, String refreshToken);
-    Mono<Void> verifyTwoFactor(String userId, String code);
-    Mono<Void> enableTwoFactor(String userId);
-    Mono<Void> disableTwoFactor(String userId);
-
-    @NullMarked
-    record AuthResult(
-        String accessToken,
-        String refreshToken,
-        String userId,
-        String email,
-        String displayName,
-        boolean twoFactorRequired
-    ) {}
+    Mono<AuthResult> register(Email email, String displayName, String password);
+    Mono<AuthResult> login(Email email, String password);
+    Mono<AuthResult> refresh(String rawRefreshToken);
+    Mono<Void> logout(String rawRefreshToken);
+    Mono<Void> logoutAll(UserId userId);
+    Mono<Void> requestPasswordReset(Email email);
+    Mono<Void> resetPassword(String resetToken, String newPassword);
+    Mono<Void> changePassword(UserId userId, String currentPassword, String newPassword);
+    Mono<Void> verifyEmail(String verificationToken);
+    Mono<Void> resendVerification(UserId userId);
+    Mono<User> getCurrentUser(UserId userId);
 }
