@@ -56,9 +56,10 @@ spring:
 logging:
   level:
     com.kanban: DEBUG
-    org.springframework.r2dbc: INFO
+    org.springframework.r2dbc: DEBUG
     io.r2dbc.postgresql.QUERY: DEBUG
     io.r2dbc.postgresql.PARAM: DEBUG
+    io.r2dbc.postgresql.client: DEBUG
     org.flywaydb.core.FlywayExecutor: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"

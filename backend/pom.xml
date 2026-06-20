@@ -33,6 +33,7 @@
         <totp.version>1.7.1</totp.version>
         <dotenv.version>5.0.1</dotenv.version>
         <logstash.version>8.0</logstash.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
 
         <r2dbc-postgresql.version>1.1.1.RELEASE</r2dbc-postgresql.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -114,6 +115,12 @@
                 <groupId>io.github.resilience4j</groupId>
                 <artifactId>resilience4j-ratelimiter</artifactId>
                 <version>${resilience4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <dependency>
