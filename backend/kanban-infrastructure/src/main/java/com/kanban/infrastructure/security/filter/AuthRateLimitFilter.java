@@ -2,6 +2,7 @@ package com.kanban.infrastructure.security.filter;
 
 import org.jspecify.annotations.NullMarked;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,12 +15,18 @@ import reactor.core.publisher.Mono;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @Order(-90)
 @NullMarked
 public class AuthRateLimitFilter implements WebFilter {
+
+    private static final List<String> SKIP_PATHS = List.of(
+        "/swagger-ui", "/v3/api-docs", "/api-docs",
+        "/actuator", "/webjars"
+    );
 
     private static final Map<String, RateLimitConfig> LIMITS = Map.of(
         "POST:/v1/auth/login", new RateLimitConfig(10, Duration.ofMinutes(1)),
@@ -40,6 +47,19 @@ public class AuthRateLimitFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        var path = exchange.getRequest().getURI().getPath();
+
+        for (var skip : SKIP_PATHS) {
+            if (path.startsWith(skip)) {
+                return chain.filter(exchange);
+            }
+        }
+
+        return doRateLimit(exchange, chain)
+            .onErrorResume(RedisConnectionFailureException.class, e -> chain.filter(exchange));
+    }
+
+    private Mono<Void> doRateLimit(ServerWebExchange exchange, WebFilterChain chain) {
         var request = exchange.getRequest();
         var routeKey = request.getMethod() + ":" + request.getURI().getPath();
         var config = LIMITS.getOrDefault(routeKey, DEFAULT_LIMIT);

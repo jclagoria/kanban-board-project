@@ -12,6 +12,10 @@ spring:
   application:
     name: kanban-multivista
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+
   r2dbc:
     url: ${DB_R2DBC_URL_DEV:r2dbc:postgresql://localhost:5432/kanban}
     username: ${DB_USER}
@@ -35,8 +39,14 @@ spring:
 
   data:
     redis:
-      url: ${REDIS_URL:redis://localhost:6379}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USER:}
+      password: ${REDIS_PASSWORD:}
       timeout: 2s
+      database: 0
+      ssl:
+        enabled: ${REDIS_SSL:false}
       lettuce:
         pool:
           max-active: 16
@@ -118,6 +128,7 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    url: /api-docs
     oauth:
       client-id: swagger-ui
       use-pkce-with-authorization-code-grant: true

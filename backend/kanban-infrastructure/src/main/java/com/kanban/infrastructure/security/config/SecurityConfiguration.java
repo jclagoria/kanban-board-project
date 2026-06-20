@@ -34,7 +34,10 @@ public class SecurityConfiguration {
                     "/v1/auth/reset-password",
                     "/v1/auth/verify-email",
                     "/v3/api-docs/**",
+                    "/api-docs/**",
+                    "/swagger-ui.html",
                     "/swagger-ui/**",
+                    "/webjars/**",
                     "/actuator/health"
                 ).permitAll()
                 .anyExchange().authenticated()

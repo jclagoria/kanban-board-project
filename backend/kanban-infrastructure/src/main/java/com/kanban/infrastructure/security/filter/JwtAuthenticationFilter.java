@@ -26,7 +26,8 @@ public class JwtAuthenticationFilter implements WebFilter {
     private static final List<String> PUBLIC_PATHS = List.of(
         "/v1/auth/register", "/v1/auth/login", "/v1/auth/refresh",
         "/v1/auth/forgot-password", "/v1/auth/reset-password",
-        "/v1/auth/verify-email", "/v3/api-docs", "/swagger-ui",
+        "/v1/auth/verify-email",
+        "/v3/api-docs", "/api-docs", "/swagger-ui", "/webjars",
         "/actuator/health"
     );
 
