@@ -1,12 +1,13 @@
 package com.kanban.interfaces.config;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.jspecify.annotations.NullMarked;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -15,14 +16,9 @@ import org.springframework.context.annotation.Configuration;
 
 @NullMarked
 @Configuration
-@SecurityScheme(
-    name = "bearerAuth",
-    type = SecuritySchemeType.HTTP,
-    scheme = "bearer",
-    bearerFormat = "JWT",
-    description = "JWT token obtained from POST /v1/auth/login"
-)
 public class OpenApiConfig {
+
+    private static final String SCHEME_NAME = "bearerAuth";
 
     @Bean
     public OpenAPI kanbanOpenAPI() {
@@ -49,14 +45,27 @@ public class OpenApiConfig {
                 .license(new License()
                     .name("Terms of Service")
                     .url("https://kanban.dev/terms")))
+            // Register the bearerAuth security scheme so Swagger UI shows the Authorize button
+            .components(new Components()
+                .addSecuritySchemes(SCHEME_NAME, new SecurityScheme()
+                    .name(SCHEME_NAME)
+                    .type(SecurityScheme.Type.HTTP)
+                    .scheme("bearer")
+                    .bearerFormat("JWT")
+                    .description("JWT token obtained from POST /v1/auth/login")))
+            // Global security requirement — Authorize button applies the token to ALL requests
+            .addSecurityItem(new SecurityRequirement().addList(SCHEME_NAME))
+            .addServersItem(new Server()
+                .url("http://localhost:8080")
+                .description("Local development"))
             .addServersItem(new Server()
                 .url("https://api.kanban.dev")
-                .description("Producción"))
+                .description("Production"))
             .addServersItem(new Server()
                 .url("https://staging-api.kanban.dev")
                 .description("Staging"))
             .externalDocs(new ExternalDocumentation()
-                .description("Guía de integración")
+                .description("Integration guide")
                 .url("https://developers.kanban.dev/docs"));
     }
 
