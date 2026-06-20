@@ -25,5 +25,10 @@
             <groupId>com.kanban</groupId>
             <artifactId>kanban-infrastructure</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
     </dependencies>
 </project>

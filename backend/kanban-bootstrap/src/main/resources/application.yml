@@ -1,5 +1,5 @@
 dotenv:
-  location: ${DOTENV_PATH:.env}
+  location: ${DOTENV_PATH:kanban-bootstrap/.env}
 
 server:
   port: ${PORT:8080}
@@ -14,8 +14,8 @@ spring:
 
   r2dbc:
     url: ${DB_R2DBC_URL_DEV:r2dbc:postgresql://localhost:5432/kanban}
-    username: ${DB_USER:kanban}
-    password: ${DB_PASSWORD:kanban}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     pool:
       max-size: 20
       initial-size: 5
@@ -27,8 +27,8 @@ spring:
   flyway:
     enabled: true
     url: ${DB_HOST_FLYWAY:jdbc:postgresql://localhost:5432/kanban}
-    user: ${DB_USER:kanban}
-    password: ${DB_PASSWORD:kanban}
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true

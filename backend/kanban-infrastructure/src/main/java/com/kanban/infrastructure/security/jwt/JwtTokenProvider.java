@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.security.KeyFactory;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -35,16 +36,30 @@ public class JwtTokenProvider implements TokenProvider {
     private final Duration refreshTokenTtl;
 
     public JwtTokenProvider(TokenProperties properties) {
-        try {
-            var keyFactory = KeyFactory.getInstance("RSA");
-            var privKeySpec = new PKCS8EncodedKeySpec(
-                Base64.getDecoder().decode(properties.getPrivateKeyBase64()));
-            this.privateKey = keyFactory.generatePrivate(privKeySpec);
-            var pubKeySpec = new X509EncodedKeySpec(
-                Base64.getDecoder().decode(properties.getPublicKeyBase64()));
-            this.publicKey = keyFactory.generatePublic(pubKeySpec);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load JWT RSA keys", e);
+        var privB64 = properties.getPrivateKeyBase64();
+        var pubB64 = properties.getPublicKeyBase64();
+        if (privB64 != null && !privB64.startsWith("${") && pubB64 != null && !pubB64.startsWith("${")) {
+            try {
+                var keyFactory = KeyFactory.getInstance("RSA");
+                var privKeySpec = new PKCS8EncodedKeySpec(
+                    Base64.getDecoder().decode(privB64));
+                this.privateKey = keyFactory.generatePrivate(privKeySpec);
+                var pubKeySpec = new X509EncodedKeySpec(
+                    Base64.getDecoder().decode(pubB64));
+                this.publicKey = keyFactory.generatePublic(pubKeySpec);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load JWT RSA keys", e);
+            }
+        } else {
+            try {
+                var generator = KeyPairGenerator.getInstance("RSA");
+                generator.initialize(2048);
+                var pair = generator.generateKeyPair();
+                this.privateKey = pair.getPrivate();
+                this.publicKey = pair.getPublic();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to generate dev JWT RSA keys", e);
+            }
         }
         this.keyId = properties.getKeyId();
         this.accessTokenTtl = properties.getAccessToken().expiration();

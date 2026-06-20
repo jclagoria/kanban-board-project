@@ -1,5 +1,10 @@
 package com.kanban.infrastructure.security.config;
 
+import com.kanban.core.domain.service.PasswordStrengthService;
+import com.kanban.core.domain.service.TokenRotationService;
+import com.kanban.core.port.output.CommonPasswordChecker;
+import com.kanban.core.port.output.RefreshTokenRepository;
+import com.kanban.core.port.output.TokenBlacklist;
 import com.kanban.infrastructure.security.config.TokenProperties;
 import com.kanban.infrastructure.security.filter.JwtAuthenticationFilter;
 import org.jspecify.annotations.NullMarked;
@@ -39,5 +44,16 @@ public class SecurityConfiguration {
             .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .build();
+    }
+
+    @Bean
+    public PasswordStrengthService passwordStrengthService(CommonPasswordChecker commonPasswordChecker) {
+        return new PasswordStrengthService(commonPasswordChecker);
+    }
+
+    @Bean
+    public TokenRotationService tokenRotationService(RefreshTokenRepository refreshTokenRepository,
+                                                      TokenBlacklist tokenBlacklist) {
+        return new TokenRotationService(refreshTokenRepository, tokenBlacklist);
     }
 }
