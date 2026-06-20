@@ -34,7 +34,7 @@
         <dotenv.version>5.0.1</dotenv.version>
         <logstash.version>8.0</logstash.version>
         <bouncycastle.version>1.84</bouncycastle.version>
-        <guava.version>33.4.0-jre</guava.version>
+        <guava.version>33.6.0-jre</guava.version>
 
         <r2dbc-postgresql.version>1.1.1.RELEASE</r2dbc-postgresql.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
