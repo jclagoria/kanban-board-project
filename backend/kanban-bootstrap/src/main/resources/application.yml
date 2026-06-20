@@ -59,6 +59,7 @@ logging:
     org.springframework.r2dbc: INFO
     io.r2dbc.postgresql.QUERY: DEBUG
     io.r2dbc.postgresql.PARAM: DEBUG
+    org.flywaydb.core.FlywayExecutor: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"
 
