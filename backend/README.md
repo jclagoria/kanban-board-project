@@ -102,6 +102,23 @@ All dependency versions are managed in the root `pom.xml`:
 | Maven Compiler Plugin | 3.13.0 | `<pluginManagement>` |
 | Maven Surefire Plugin | 3.5.0 | `<pluginManagement>` |
 
+## ⚠️ IMPORTANT — Common Password Checker (Bloom Filter)
+
+The `CommonPasswordChecker` validates registration passwords against ~7,500 common passwords using a **Guava Bloom Filter** in heap memory (~16 KB).
+
+**Loading order** (startup):
+1. External file ← `-Dcommon-passwords=/path` or `KANBAN_COMMON_PASSWORDS` env var
+2. Bundled in JAR ← `kanban-infrastructure/src/main/resources/common-passwords.txt.gz`
+3. Hardcoded fallback ← ~50 most common passwords in Java code
+
+### Why not DB / Redis / API?
+- **DB query** adds 5-20ms latency + pool pressure per registration
+- **Redis** adds a network hop for a trivial lookup
+- **HIBP API** adds 100-500ms + rate limits + privacy concerns
+- **Bloom Filter** is O(µs), zero I/O, zero network — and it's JVM-local by nature
+
+The wordlist is **application configuration**, not runtime data. It changes rarely and travels with the release.
+
 ## Versions
 
 Current: `0.0.1-SNAPSHOT`
