@@ -10,3 +10,8 @@
 /backend/.agents/
 /backend/spect/
 /backend/kanban-bootstrap/.env
+
+openspec/
+spec/
+.cursor/
+.github/

@@ -1,7 +1,7 @@
 'use client'
 
-import LoginPage from '@/features/auth/components/wireframes/LoginPage'
+import { LoginForm } from '@/features/auth/components/LoginForm'
 
-export default function Login() {
-  return <LoginPage showStructure={false} />
+export default function LoginPage() {
+  return <LoginForm />
 }

@@ -16,3 +16,4 @@ components.json
 .next/
 .env
 skills-lock.json
+tsconfig.tsbuildinfo
