@@ -19,16 +19,4 @@ export function useLogin() {
   })
 }
 
-export function useLoginWith2fa() {
-  const loginWith2fa = useAuthStore((s) => s.loginWith2fa)
-  const router = useRouter()
 
-  return useMutation({
-    mutationFn: async (data: { email: string; password: string; code: string }) => {
-      await loginWith2fa(data.email, data.password, data.code)
-    },
-    onSuccess: () => {
-      router.push('/dashboard')
-    },
-  })
-}

@@ -5,8 +5,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { authApi } from '@/lib/api/auth'
 import type { User } from '@/lib/types/domain'
-import { ApiException, AuthException, RateLimitException, TwoFactorRequiredError } from '@/types/api'
-import { mapRawUserToUser, type RawUser } from '@/types/auth'
+import { ApiException, AuthException, RateLimitException } from '@/types/api'
+import { mapRawUserToUser } from '@/types/auth'
 
 type AuthState = {
   user: User | null
@@ -19,7 +19,6 @@ type AuthState = {
 
 type AuthActions = {
   login: (email: string, password: string) => Promise<void>
-  loginWith2fa: (email: string, password: string, code: string) => Promise<void>
   register: (email: string, name: string, password: string) => Promise<void>
   logout: () => Promise<void>
   refreshTokenAction: () => Promise<void>
@@ -50,13 +49,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       login: async (email, password) => {
         try {
-          const res = await authApi.login({ email, password })
-
-          if ('code' in res && res.code === '2FA_REQUIRED') {
-            throw new TwoFactorRequiredError(res.userId)
-          }
-
-          const data = res as { accessToken: string; refreshToken: string; user: RawUser }
+          const data = await authApi.login({ email, password })
           set({
             token: data.accessToken,
             refreshToken: data.refreshToken,
@@ -66,8 +59,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             accountLockedUntil: null,
           })
         } catch (error) {
-          if (error instanceof TwoFactorRequiredError) throw error
-
           if (error instanceof RateLimitException) {
             const lockedUntil = new Date(Date.now() + error.retryAfter * 1000)
             set({ accountLockedUntil: lockedUntil })
@@ -87,18 +78,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
           throw new AuthException('INVALID_CREDENTIALS', 'Email o contraseña incorrectos')
         }
-      },
-
-      loginWith2fa: async (email, password, code) => {
-        const data = await authApi.loginWith2fa({ email, password, code })
-        set({
-          token: data.accessToken,
-          refreshToken: data.refreshToken,
-          user: mapRawUserToUser(data.user),
-          isAuthenticated: true,
-          loginAttempts: 0,
-          accountLockedUntil: null,
-        })
       },
 
       register: async (email, name, password) => {

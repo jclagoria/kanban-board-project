@@ -7,11 +7,10 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
-import { AuthException, RateLimitException, TwoFactorRequiredError } from '@/types/api'
+import { AuthException, RateLimitException } from '@/types/api'
 import { useLogin } from '../hooks/useLogin'
 import { type LoginInput, loginSchema } from '../schemas/loginSchema'
 import { AccountLockedCard } from './AccountLockedCard'
-import { TwoFactorForm } from './TwoFactorForm'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -23,7 +22,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const loginMutation = useLogin()
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [twoFactorPending, setTwoFactorPending] = useState<{ email: string; password: string } | null>(null)
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -36,19 +34,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     )
   }
 
-  if (twoFactorPending) {
-    return <TwoFactorForm email={twoFactorPending.email} password={twoFactorPending.password} />
-  }
-
-  const onSubmit = async (data: LoginInput) => {
-    try {
-      await loginMutation.mutateAsync(data)
-      onSuccess?.()
-    } catch (error) {
-      if (error instanceof TwoFactorRequiredError) {
-        setTwoFactorPending({ email: data.email, password: data.password })
-      }
-    }
+  const onSubmit = (data: LoginInput) => {
+    loginMutation.mutate(data, { onSuccess })
   }
 
   const isError = !!loginMutation.error

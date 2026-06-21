@@ -11,10 +11,6 @@ export interface LoginRequest {
   password: string
 }
 
-export interface Login2faRequest extends LoginRequest {
-  code: string
-}
-
 export interface ResetPasswordRequest {
   token: string
   newPassword: string
@@ -50,6 +46,5 @@ export const mapRawUserToUser = (raw: RawUser): User => ({
 export type AuthView =
   | 'login'
   | 'register'
-  | 'two-factor'
   | 'forgot-password'
   | 'reset-password'

@@ -54,12 +54,4 @@ export class RateLimitException extends Error {
   }
 }
 
-export class TwoFactorRequiredError extends Error {
-  userId: string
 
-  constructor(userId: string) {
-    super('Se requiere autenticación de dos factores')
-    this.name = 'TwoFactorRequiredError'
-    this.userId = userId
-  }
-}

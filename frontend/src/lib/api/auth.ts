@@ -2,7 +2,6 @@ import { api } from './client'
 import type {
   RegisterRequest,
   LoginRequest,
-  Login2faRequest,
   ResetPasswordRequest,
   ChangePasswordRequest,
   AuthResponse,
@@ -13,10 +12,7 @@ export const authApi = {
     api.post<AuthResponse>('/auth/register', data),
 
   login: (data: LoginRequest) =>
-    api.post<AuthResponse | { code: '2FA_REQUIRED'; userId: string }>('/auth/login', data),
-
-  loginWith2fa: (data: Login2faRequest) =>
-    api.post<AuthResponse>('/auth/login/2fa', data),
+    api.post<AuthResponse>('/auth/login', data),
 
   refresh: (refreshToken: string) =>
     api.post<AuthResponse>('/auth/refresh', { refreshToken }),
